@@ -28,3 +28,36 @@ fn test_match_str_iterator() {
 	}
 	assert out == ['a', 'b', 'c', 'd', 'e', 'f']
 }
+
+fn test_match_str_many() {
+	mut re := new_regex(r'(^it.*)(a\w*)', 0)! // match each of the letters
+	str := '
+>miss
+it
+iter
+intern
+item
+>hit
+iterate
+italic
+iterable
+	'
+	// I dont think match_str_many is needed since match_str with get all can be used
+	all_matches := re.match_str(str, 0, 0) or { panic('No match!') }
+	dump(all_matches)
+
+	lines := str.split('\n')
+	println(lines)
+	mut out := []string{}
+	for i in 0 .. lines.len {
+		line := lines[i]
+		matches := re.match_str(line, 0, 0) or { continue }
+		for m in matches {
+			assert m.get_all().len == 2
+			out << m.get(0)!
+			out << m.get(1)!
+			out << m.get(2)!
+		}
+	}
+	assert out == ['iterate', 'iter', 'ate', 'italic', 'it', 'alic', 'iterable', 'iter', 'able']
+}
